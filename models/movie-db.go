@@ -19,7 +19,7 @@ func (m *DBModel) Get(id int) (*Movie, error) {
 
 	query := `
 		SELECT id, title, description, year, release_date, 
-				rating, runtime, mpaa_rating, created_at, updated_at 
+				rating, runtime, mpaa_rating, created_at, updated_at, COALESCE(poster, '') 
 		FROM movies 
 		WHERE id = $1
 	`
@@ -39,6 +39,7 @@ func (m *DBModel) Get(id int) (*Movie, error) {
 		&movie.MPAARating,
 		&movie.CreatedAt,
 		&movie.UpdatedAt,
+		&movie.Poster,
 	)
 
 	if err != nil {
@@ -89,7 +90,7 @@ func (m *DBModel) Movies(genre ...int) ([]*Movie, error) {
 
 	query := fmt.Sprintf(`
 		SELECT id, title, description, year, release_date, 
-				rating, runtime, mpaa_rating, created_at, updated_at 
+				rating, runtime, mpaa_rating, created_at, updated_at, COALESCE(poster, '')
 		FROM movies %s ORDER BY title`, where)
 
 	rows, err := m.DB.QueryContext(ctx, query)
@@ -113,6 +114,7 @@ func (m *DBModel) Movies(genre ...int) ([]*Movie, error) {
 			&movie.MPAARating,
 			&movie.CreatedAt,
 			&movie.UpdatedAt,
+			&movie.Poster,
 		)
 		if err != nil {
 			return nil, err
@@ -194,8 +196,8 @@ func (m *DBModel) InsertMovie(movie Movie) error {
 	query := `
 		INSERT INTO movies
 			(title, description, year, release_date, 
-				rating, runtime, mpaa_rating, created_at, updated_at) 
-		VALUES  ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+				rating, runtime, mpaa_rating, created_at, updated_at, poster) 
+		VALUES  ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 	`
 
 	_, err := m.DB.ExecContext(ctx, query,
@@ -208,6 +210,7 @@ func (m *DBModel) InsertMovie(movie Movie) error {
 		movie.MPAARating,
 		movie.CreatedAt,
 		movie.UpdatedAt,
+		movie.Poster,
 	)
 
 	if err != nil {
@@ -224,8 +227,9 @@ func (m *DBModel) UpdateMovie(movie Movie) error {
 	query := `
 		UPDATE movies
 		SET	title = $1, description = $2, year = #3, release_date = $4, 
-			rating = $5, runtime = $6, mpaa_rating = $7, updated_at = $8 
-		WHERE id = $9
+			rating = $5, runtime = $6, mpaa_rating = $7, updated_at = $8, 
+			poster = $9
+		WHERE id = $10
 	`
 
 	_, err := m.DB.ExecContext(ctx, query,
@@ -237,6 +241,7 @@ func (m *DBModel) UpdateMovie(movie Movie) error {
 		movie.Runtime,
 		movie.MPAARating,
 		movie.UpdatedAt,
+		movie.Poster,
 		movie.ID,
 	)
 

@@ -13,7 +13,6 @@ import (
 	"github.com/pascaldekloe/jwt"
 )
 
-// YET TO UNDERSTAND!!!
 func (app *application) chainMW(next http.Handler) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		ctx := context.WithValue(r.Context(), "params", ps)

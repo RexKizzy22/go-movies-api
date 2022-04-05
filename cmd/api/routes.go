@@ -11,7 +11,7 @@ func (app *application) routes() http.Handler {
 	router := httprouter.New()
 	secure := alice.New(app.checkToken)
 
-	router.HandlerFunc(http.MethodPost, "/v1/graphql/list", app.moviesGraphQL)
+	router.HandlerFunc(http.MethodPost, "/v1/graphql", app.moviesGraphQL)
 
 	router.HandlerFunc(http.MethodGet, "/status", app.statusHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/movie/:id", app.getOneMovie)
