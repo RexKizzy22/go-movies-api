@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,20 +10,24 @@ import (
 	"time"
 
 	"github.com/RexKizzy22/go-movies-api/models"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 const version = "1.0.0"
 
+type DB struct {
+	dsn string
+}
+type JWT struct {
+	secret string
+}
+
 type config struct {
 	port int
 	env  string
-	db   struct {
-		dsn string
-	}
-	jwt struct {
-		secret string
-	}
+	db   DB
+	jwt  JWT
 }
 
 type application struct {
@@ -39,14 +42,32 @@ type AppStatus struct {
 	Version     string `json:"version"`
 }
 
-func main() {
-	var cfg config
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
 
-	flag.IntVar(&cfg.port, "port", 4000, "Server port to listen on")
-	flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production)")
-	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://postgres:Kizito@94@localhost/go_movies?sslmode=disable", "Postgres connection string")
-	flag.StringVar(&cfg.jwt.secret, "jwt-secret", "2dce505d96a53c5768052ee90f3df2055657518dad489160df9913f66042e160", "Secret")
-	flag.Parse()
+func main() {
+	// var cfg config
+
+	// flag.IntVar(&cfg.port, "port", 4000, "Server port to listen on")
+	// flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production)")
+	// flag.StringVar(&cfg.db.dsn, "dsn", "{POSTGRES_URI}", "Postgres connection string")
+	// flag.StringVar(&cfg.jwt.secret, "jwt-secret", "{JWT_SECRET}", "Secret")
+	// flag.Parse()
+
+	cfg := config{
+		port: 4000,
+		env:  "development",
+		db: DB{
+			dsn: os.Getenv("POSTGRES_URI"),
+		},
+		jwt: JWT{
+			secret: os.Getenv("JWT_SECRET"),
+		},
+	}
 
 	db, err := openDB(cfg)
 	if err != nil {

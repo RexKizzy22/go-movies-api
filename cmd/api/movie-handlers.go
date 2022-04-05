@@ -211,7 +211,7 @@ func getPoster(movie models.Movie) models.Movie {
 
 	log.Println(theURL + key + "&query=" + url.QueryEscape(movie.Title))
 
-	req, err := http.NewRequest("GET", theURL + key + "&query=" + url.QueryEscape(movie.Title), nil)
+	req, err := http.NewRequest("GET", theURL+key+"&query="+url.QueryEscape(movie.Title), nil)
 	if err != nil {
 		log.Println(err)
 		return movie
